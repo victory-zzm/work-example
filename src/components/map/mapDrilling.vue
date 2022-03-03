@@ -1,0 +1,587 @@
+<template>
+  <div :style="{ height: height, width: width }"></div>
+</template>
+
+<script>
+// import * as echarts from 'echarts';
+// 河北省地图
+import hebei from "@/assets/map/province/hebei.json"
+// 河北省城市地图
+import baoding from "@/assets/map/baoding.json"
+import cangzhou from "@/assets/map/cangzhou.json"
+import chengde from "@/assets/map/chengde.json"
+import handan from "@/assets/map/handan.json"
+import hengshui from "@/assets/map/hengshui.json"
+import langfang from "@/assets/map/langfang.json"
+import qinhuangdao from "@/assets/map/qinhuangdao.json"
+import shijiazhuang from "@/assets/map/shijiazhuang.json"
+import tangshan from "@/assets/map/tangshan.json"
+import xingtai from "@/assets/map/xingtai.json"
+import zhangjiakou from "@/assets/map/zhangjiakou.json"
+
+import echartResize from "./mixins/echartResize"
+import imgSrc from '@/assets/map/image/dots.png'
+
+// 获取用户信息
+// import { getInfo } from '../../../../api/login.js'
+// import { getUserDeptCountByArea } from "@/api/system/regional";
+
+const userAreaCode = [
+  ['河北省', 130000],
+  ['石家庄市', 130100],
+  ['唐山市', 130200],
+  ['秦皇岛市', 130300],
+  ['邯郸市', 130400],
+  ['邢台市', 130500],
+  ['保定市', 130600],
+  ['张家口市', 130700],
+  ['承德市', 130800],
+  ['沧州市', 130900],
+  ['廊坊市', 131000],
+  ['衡水市', 131100]
+];
+
+const hebei1 = {
+  '石家庄市': [114.520828, 38.048684],
+  '保定市': [115.471052, 38.880055],
+  '沧州市': [116.845272, 38.31022],
+  '承德市': [117.969798, 40.957855],
+  '邯郸市': [114.482693932, 36.6093079285],
+  '衡水市': [115.676942, 37.745166],
+  '廊坊市': [116.42, 39.31],
+  '秦皇岛市': [119.606184, 39.941259],
+  '唐山市': [118.187036, 39.636673],
+  '邢台市': [114.510889, 37.076646],
+  '张家口市': [114.994165, 40.230172],
+};
+const zhangjiakou1 = {
+  '康保县': [114.615809,41.850046],
+  '张北县': [114.715951,41.151713],
+  '沽源县': [115.684836,41.667419],
+  '赤城县': [115.832708,40.912081],
+  '尚义县': [113.977713,41.080091],
+  '万全区': [114.736131,40.765136],
+  '怀安县': [114.422364,40.671274],
+  '桥西区': [114.882127,40.824385],
+  '桥东区': [114.885658,40.813875],
+  '崇礼区': [115.281652,40.971302],
+  '宣化区': [115.0632,40.609368],
+  '下花园区': [115.281002,40.488645],
+  '怀来县': [115.520846,40.405405],
+  '阳原县': [114.167343,40.113419],
+  '蔚县': [114.582695,39.837181],
+  '涿鹿县': [115.219246,40.378701]
+}
+const chengde1 = {
+  '围场满族蒙古族自治县': [117.764086,41.949404],
+  '丰宁满族自治县': [116.65121,41.209903],
+  '隆化县': [117.736343,41.316667],
+  '双滦区': [117.797485,40.959756],
+  '滦平县': [117.337124,40.936644],
+  '承德县': [118.172496,40.768637],
+  '双桥区': [117.939152,40.976204],
+  '平泉市': [118.690238,41.00561],
+  '鹰手营子矿区': [117.661154,40.546956],
+  '宽城满族自治县': [118.488642,40.607981]
+}
+const cangzhou1 = {
+  '运河区': [116.840063,38.307405],
+  '新华区': [116.873049,38.308273],
+  '泊头市': [116.570163,38.073479],
+  '任丘市': [116.106764,38.706513],
+  '黄骅市': [117.343803,38.369238],
+  '河间市': [116.089452,38.44149],
+  '沧县': [117.007478,38.219856],
+  '青县': [116.838384,38.569646],
+  '东光县': [116.542062,37.88655],
+  '海兴县': [117.496606,38.141582],
+  '盐山县': [117.229814,38.056141],
+  '肃宁县': [115.835856,38.427102],
+  '南皮县': [116.709171,38.042439],
+  '吴桥县': [116.391512,37.628182],
+  '献县': [116.123844,38.189661],
+  '孟村回族自治县': [117.105104,38.057953]
+}
+const baoding1 = {
+  '竞秀区': [115.470659,38.88662],
+  '莲池区': [115.500934,38.865005],
+  '满城区': [115.32442,38.95138],
+  '清苑区': [115.492221,38.771012],
+  '徐水区': [115.64941,39.020395],
+  '涿州市': [115.973409,39.485765],
+  '定州市': [114.991389,38.517602],
+  '安国市': [115.33141,38.421367],
+  '高碑店市': [115.882704,39.327689],
+  '涞水县': [115.711985,39.393148],
+  '阜平县': [114.198801,38.847276],
+  '定兴县': [115.796895,39.266195],
+  '唐县': [114.981241,38.748542],
+  '高阳县': [115.778878,38.690092],
+  '容城县': [115.866247,39.05282],
+  '涞源县': [114.692567,39.35755],
+  '望都县': [115.154009,38.707448],
+  '安新县': [115.931979,38.929912],
+  '曲阳县': [114.704055,38.619992],
+  '易县': [115.501146,39.35297],
+  '蠡县': [115.583631,38.496429],
+  '顺平县': [115.132749,38.845127],
+  '博野县': [115.461798,38.458271],
+  '雄县': [116.107474,38.990819],
+}
+const langfang1 = {
+  '安次区': [116.694544,39.502569],
+  '广阳区': [116.713708,39.521931],
+  '香河县': [117.007161,39.757212],
+  '永清县': [116.498089,39.319717],
+  '固安县': [116.299894,39.436468],
+  '文安县': [116.460107,38.866801],
+  '大城县': [116.640735,38.699215],
+  '大厂回族自治县': [116.986501,39.889266],
+  '三河市': [117.077018,39.982778],
+  '霸州市': [116.392021,39.117331]
+}
+const shijiazhuang1 = {
+  '长安区': [114.548151,38.047501],
+  '桥西区': [114.462931,38.028383],
+  '新华区': [114.465974,38.067142],
+  '裕华区': [114.533257,38.027696],
+  '井陉矿区': [114.058178,38.069748],
+  '藁城区': [114.849647,38.033767],
+  '鹿泉区': [114.321023,38.093994],
+  '栾城区': [114.654281,37.886911],
+  '井陉县': [114.144488,38.033614],
+  '正定县': [114.569887,38.147835],
+  '行唐县': [114.552734,38.437422],
+  '灵寿县': [114.37946,38.306546],
+  '高邑县': [114.610699,37.605714],
+  '赞皇县': [114.387756,37.660199],
+  '无极县': [114.977845,38.176376],
+  '平山县': [114.184144,38.259311],
+  '元氏县': [114.52618,37.762514],
+  '赵县': [114.775362,37.754341],
+  '深泽县': [115.200207,38.18454],
+  '辛集市': [115.217451,37.92904],
+  '晋州市': [115.044886,38.027478],
+  '新乐市': [114.68578,38.344768]
+}
+const tangshan1 = {
+  '路南区': [118.210821,39.615162],
+  '路北区': [118.174736,39.628538],
+  '古冶区': [118.45429,39.715736],
+  '开平区': [118.264425,39.676171],
+  '丰南区': [118.110793,39.56303],
+  '丰润区': [118.155779,39.831363],
+  '曹妃甸区': [118.446585,39.278277],
+  '乐亭县': [118.905341,39.42813],
+  '玉田县': [117.753665,39.887323],
+  '滦南县': [118.681552,39.506201],
+  '遵化市': [117.965875,40.188616],
+  '迁安市': [118.701933,40.012108],
+  '迁西县': [118.305139,40.146238],
+  '滦州市': [118.699546,39.74485]
+}
+const qinhuangdao1 = {
+  '海港区': [119.596224,39.943458],
+  '山海关区': [119.753591,39.998023],
+  '北戴河区': [119.486286,39.825121],
+  '抚宁区': [119.240651,39.887053],
+  '昌黎县': [119.164541,39.709729],
+  '卢龙县': [118.881809,39.891639],
+  '青龙满族自治县': [118.954555,40.406023]
+}
+const hengshui1 = {
+  '桃城区': [115.694945,37.732237],
+  '冀州区': [115.579173,37.542788],
+  '深州市': [115.554596,38.00347],
+  '枣强县': [115.726499,37.511512],
+  '武邑县': [115.892415,37.803774],
+  '武强县': [115.970236,38.03698],
+  '饶阳县': [115.726577,38.232671],
+  '安平县': [115.519627,38.233511],
+  '故城县': [115.966747,37.350981],
+  '景县': [116.258446,37.686622],
+  '阜城县': [116.164727,37.869945]
+}
+const xingtai1 = {
+  '襄都区': [114.507131,37.064125],
+  '信都区': [114.473687,37.068009],
+  '任泽区': [114.684469,37.129952],
+  '南和区': [114.691377,37.003812],
+  '临城县': [114.506873,37.444009],
+  '内丘县': [114.511523,37.287663],
+  '柏乡县': [114.693382,37.483596],
+  '隆尧县': [114.776348,37.350925],
+  '宁晋县': [114.921027,37.618956],
+  '巨鹿县': [115.038782,37.21768],
+  '新河县': [115.247537,37.526216],
+  '广宗县': [115.142797,37.075548],
+  '平乡县': [115.029218,37.069404],
+  '威县': [115.272749,36.983272],
+  '清河县': [115.668999,37.059991],
+  '临西县': [115.498684,36.8642],
+  '南宫市': [115.398102,37.359668],
+  '沙河市': [114.504902,36.861903]
+}
+const handan1 ={
+  '邯山区': [114.484989,36.603196],
+  '丛台区': [114.494703,36.611082],
+  '复兴区': [114.458242,36.615484],
+  '峰峰矿区': [114.209936,36.420487],
+  '肥乡区': [114.805154,36.555778],
+  '永年区': [114.496162,36.776413],
+  '临漳县': [114.610703,36.337604],
+  '成安县': [114.680356,36.443832],
+  '大名县': [115.152586,36.283316],
+  '涉县': [113.673297,36.563143],
+  '磁县': [114.38208,36.367673],
+  '邱县': [115.168584,36.81325],
+  '鸡泽县': [114.878517,36.914908],
+  '广平县': [114.950859,36.483603],
+  '馆陶县': [115.289057,36.539461],
+  '魏县': [114.93411,36.354248],
+  '曲周县': [114.957588,36.773398],
+  '武安市': [114.194581,36.696115]
+}
+
+const cityMapData = [
+  { hebei: hebei1},
+  { baoding: baoding1},
+  { cangzhou: cangzhou1},
+  { chengde: chengde1},
+  { handan: handan1},
+  { hengshui: hengshui1},
+  { langfang: langfang1},
+  { qinhuangdao: qinhuangdao1},
+  { shijiazhuang: shijiazhuang1},
+  { tangshan: tangshan1},
+  { xingtai: xingtai1},
+  { zhangjiakou: zhangjiakou1 },
+]
+
+const cityMap = {
+  '石家庄市': { name: "shijiazhuang", map: shijiazhuang },
+  '保定市': { name: "baoding", map: baoding },
+  '沧州市': { name: "cangzhou", map: cangzhou },
+  '承德市': { name: "chengde", map: chengde },
+  '邯郸市': { name: "handan", map: handan },
+  '衡水市': { name: "hengshui", map: hengshui },
+  '廊坊市': { name: "langfang", map: langfang },
+  '秦皇岛市': { name: "qinhuangdao", map: qinhuangdao },
+  '唐山市': { name: "tangshan", map: tangshan },
+  '邢台市': { name: "xingtai", map: xingtai },
+  '张家口市': { name: "zhangjiakou", map: zhangjiakou }
+}
+
+// 城市名
+let cityName = undefined;
+let cityCode = '';
+console.log(cityCode, '子组件触发');
+// 是否下钻（层级为1）
+let goDown = true
+/**
+ * 是否点击地图
+ * 实现点击地图之外则返回上级的效果
+ * 参考链接:http://datav.aliyun.com/portal/school/atlas/area_selector
+ * 实际效果:会有延迟,如果在切换到下一级迅速将鼠标移开地图,则无法触发mouseleave事件
+ */
+
+// 地图缩放指数
+// let zoomNum = 1
+
+
+// 纹理图
+// const imageDom = new Image(20, 20)
+const imageDom = new Image(56, 24)
+imageDom.src = imgSrc
+
+let storeMap = hebei1;  // 默认是省级，河北省
+let deptUserCount = []; // 网点和用户数
+let mapData = []  // 要渲染的地图
+
+// 写入地图打点数据和用户数、网点数
+function initMapData() {
+  mapData = [];
+  for (const [name, data] of Object.entries(storeMap)) {
+    let deptCount = 0;
+    let userCount = 0;
+    deptUserCount.some(value=>{
+      if(name === value.areaname){
+        deptCount = value.deptCount;
+        userCount = value.userCount;
+      }
+      return name === value.areaname;
+    })
+    mapData.push({
+      name,
+      value: [...data, userCount, deptCount]
+    })
+  }
+}
+initMapData();
+
+export default {
+  name: 'LocalMap',
+  mixins: [echartResize],
+  props: {
+    father: Object,
+    width: {
+      type: String,
+      default: '100%'
+    },
+    height: {
+      type: String,
+      default: '760px'
+    },
+    chartData: {
+      type: Object,
+    }
+  },
+  data() {
+    return {
+      chart: null,
+    }
+  },
+  created() {
+    
+  },
+  mounted() {
+    const that = this
+    this.$nextTick(() => {
+      this.chart = this.$echarts.init(this.$el)
+      // 获取用户信息，判断属于哪一个区域
+      this.getUserInfo();
+      this.chart.on('click', function (event) {
+        // console.log(event);
+        // isTouchMap = true
+        // 获取城市的代码
+        that.getCityCode(event.name);
+        const componentType = event.componentType
+        if (componentType === 'geo' && goDown) {
+          cityName = event.name
+          goDown = false
+          // 清除散点图数据
+          // mapData = []
+          // zoomNum = 0.6
+          that.chart.clear()
+          that.initChart(that.chartData)
+          that.zoomAnimation()
+        }
+      })
+    })
+  },
+  beforeDestroy() {
+    if (!this.chart) {
+      return
+    }
+    this.chart.dispose()
+    this.chart = null
+  },
+  methods: {
+    // 调用父组件的方法 设置右下角的数据
+    setParent(code){
+      this.father.getUserDeptCount(code)
+    },
+    // 获取点击的是哪一个城市的areacode
+    getCityCode(name){
+      // 如果城市名为空则设为省级
+      if(!name){
+        cityCode = '130000';
+        cityName = undefined;
+        this.initChart()
+        return;
+      }
+      userAreaCode.some(value=>{
+        if(value[0] === name){
+          // console.log('点击的城市是：'+value);
+          cityCode = value[1];
+        }
+        return value[0]=== name;
+      })
+    },
+
+    // 获取用户数和网点数
+    /* getUserDeptCount(areacode){
+      getUserDeptCountByArea(areacode).then(res=>{
+        deptUserCount = res.data;
+        // console.log(deptUserCount);
+      })
+    }, */
+
+    // 初始化获取用户详细信息
+    getUserInfo(){
+      cityCode = '130000';
+      /* await getInfo().then(res=>{
+        cityCode = res.user.areacode;
+        // this.setParent(cityCode);
+        // cityCode = '130000';
+        userAreaCode.forEach(value=>{
+          if(value[1] == cityCode){
+            // console.log(value[0])
+            // cityName = value[0];
+            return 1;
+          }
+        })
+        if(cityName == '河北省'){
+          this.initChart(this.chartData);
+        }else{
+          this.chart.clear()
+          this.initChart()
+          this.zoomAnimation()
+        }
+      }).catch(err=>{
+        this.$msgError(err);
+      }) */
+    },
+
+    initChart() {
+      const that = this
+      this.$echarts.registerMap(cityMap[cityName]?.name || 'hebei', cityMap[cityName]?.map || hebei);
+      // 判断点击的是哪一个城市
+      let reco = cityMap[cityName]?.name ? cityMap[cityName]?.name : 'hebei';
+      // 设置传入参数，选择要渲染的城市
+      cityMapData.some((value)=>{
+        if(Object.keys(value)[0] === reco){
+          storeMap = value[Object.keys(value)[0]];
+        }
+        return Object.keys(value)[0] === reco;
+      })
+      
+      // 将打点数据置空
+      mapData = [];
+      initMapData();
+      this.$echarts.setOption({
+        tooltip: {
+          trigger: 'item'
+        },
+        geo: [{
+          map: cityMap[cityName]?.name || 'hebei',
+          // zoom: zoomNum,
+          label: {
+            normal: {
+              show: true,
+              color: '#090238',
+              fontSize: 14,
+              fontWeight: 600
+            }
+          },
+          itemStyle: {
+            normal: {
+              borderColor: '#e4e4e4',//线
+              borderWidth: 2,
+              areaColor: {
+                image: imageDom,
+                repeat: 'repeat'
+              }
+            },
+          }
+        }],
+        graphic: [
+          {
+            type: 'text',
+            top: 0,
+            left: 0,
+            style: {
+              text: '河北',
+              fontSize: 36
+            },
+            // 点击的是省级
+            onclick: function () {
+              cityName = undefined
+              goDown = true
+              that.$echarts.clear()
+              that.zoomAnimation()
+            }
+          },
+          {
+            type: 'text',
+            top: 0,
+            left: 100,
+            style: {
+              text: cityName || '',
+              fontSize: 36
+            }
+          },
+        ],
+        series: [{
+          type: 'effectScatter',
+          coordinateSystem: 'geo',
+          hoverAnimation: true,
+          showEffectOn: 'render',
+          symbolSize: 10,
+          rippleEffect: {  // 波浪气泡影响
+            color: '#008fff',
+            brushType: 'stroke',
+          },
+          itemStyle: {
+            normal: {
+              // color: 'rgba(254, 193, 9, 0.1)',
+              // color: 'transparent',
+              color: 'rgba(0, 145, 255, 0.1)',
+              borderWidth: .5,
+              borderColor: 'rgba(254, 193, 9)'
+            },
+            emphasis: {
+              show: true
+            }
+          },
+          data: mapData,
+          tooltip: {
+            position: function (point, params, dom, rect, size) {
+              // 固定在鼠标的顶部
+              let cWidth = point[0] - size.contentSize[0]/2;
+              let cHeight = point[1] - size.contentSize[1] - 15;
+              return [cWidth, cHeight];
+            },
+            backgroundColor: '#fff',
+            textStyle: {
+              color: '#000',
+              fontWeight: 700
+            },
+            formatter: function (params) {
+              // console.log(params);
+              const name = params.name
+              const value1 = params.value[2]
+              const value2 = params.value[3]
+              return `${name}
+              <br/>
+              <span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:#00d968"></span>用户总数： ${value1}
+              <br/>
+              <span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:#fdbf00"></span>网点总数： ${value2}`
+            }
+          }
+        }]
+      })
+    },
+    zoomAnimation: function () {
+      var count = null;
+      const that = this
+      var zoom = function (per) {
+        if (!count) count = per;
+        count = count + per;
+        that.$echarts.setOption({
+          geo: {
+            zoom: count
+          }
+        });
+        if (count < 1) window.requestAnimationFrame(function () {
+          zoom(0.2);
+        });
+      };
+      window.requestAnimationFrame(function () {
+        zoom(0.2);
+      });
+    }
+  }
+}
+</script>
+<style scoped>
+.box{
+  color: rgb(0, 145, 255);
+}
+.tooltip{
+  height: 200px;
+  width: 200px;
+  position: relative;
+  background-color: rgb(0, 145, 255);
+}
+</style>
