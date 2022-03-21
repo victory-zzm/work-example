@@ -11,6 +11,7 @@ import Middle from '@/views/screen/middle/index.vue';
 // import Drilling from '@/components/map/Index.vue';
 import MixinsOne from '@/views/mystudy/mixinsLearn/mixinOne.vue';
 import MixinsTwo from '@/views/mystudy/mixinsLearn/mixinTwo.vue';
+import WorkList from '@/views/worklist/worklist.vue'
 
 Vue.use(VueRouter)
 
@@ -60,10 +61,15 @@ const routes = [
     name: VueComponent,
     component: VueComponent
   },
-  {
+  { // 关于大屏适配的问题
     path: '/map',
-    name: MapPage,
+    name: 'MapPage',
     component: MapPage
+  },
+  { // 提升效率的
+    path: '/worklist',
+    name: WorkList,
+    component: WorkList
   },
   {
     path: '/learnmixin1',
@@ -74,6 +80,11 @@ const routes = [
     path: '/learnmixin2',
     name: 'mixin2',
     component: MixinsTwo
+  },
+  { // 大屏显示组件
+    path: '/testpage',
+    component: (resolve) => require(['@/views/screen/test'], resolve),
+    hidden: true
   },
   {
     path: '/test',
